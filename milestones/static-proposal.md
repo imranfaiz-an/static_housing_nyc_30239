@@ -49,6 +49,9 @@ Size:
 I will be bringing in the ACS data to bring in numbers on rent estimates, and get demographic level breakdowns on the 
 population. The Census also publishes [Tiger shapefiles](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html) that I will bring in to do spatial analysis.
 
+## Questions:
 
+1- Is there a way to make Flowmaps using Altair. An idea for a visualization that I had was to show how
+housing shortage in NYC causes people to move out using PUMS data. 
 
 
