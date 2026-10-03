@@ -44,7 +44,7 @@ which would allow me to do a more granular analysis if needed.
 ### Data Source 3: American Community Survey 2023
 
 [URL](https://data.census.gov/table/ACSDT1Y2024.B25031?q=B25031:+Median+Gross+Rent+by+Bedrooms)
-Size:
+Size: The API allows data to be fetched on different levels of aggregations (state, census tract, census block etc.)
 
 I will be bringing in the ACS data to bring in numbers on rent estimates, and get demographic level breakdowns on the 
 population. The Census also publishes [Tiger shapefiles](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html) that I will bring in to do spatial analysis.
