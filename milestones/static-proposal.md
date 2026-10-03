@@ -16,8 +16,8 @@ analysis and will include information on the construction of affordable housing 
 New York are [notorious](https://www.nytimes.com/2026/10/01/nyregion/nyc-affordable-housing-neighborhoods.html) for restricting
 the supply of.
 
-Lastly, I plan on bringing in the Census data on the census block or census tract level for NYC to
-draw parallels 
+Lastly, I plan on bringing in the Census data on the census block or census tract level to visualize how housing shortage impacts
+different racial/ethnic minority groups.
 
 
 ## Data Sources
