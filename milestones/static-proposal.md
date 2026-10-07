@@ -55,3 +55,5 @@ population. The Census also publishes [Tiger shapefiles](https://www.census.gov/
 housing shortage in NYC causes people to move out using PUMS data. 
 
 
+## Similar Projects:
+- [Conversions](https://www.nytimes.com/2026/08/30/nyregion/nyc-conversions-analysis-pfizer.html)
