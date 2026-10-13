@@ -1,0 +1,16 @@
+[project]
+name = "static-housing-nyc-30239"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "altair>=6.3.0",
+    "dotenv>=0.9.9",
+    "geopandas>=1.2.0",
+    "ipython>=9.17.1",
+    "marimo>=0.25.1",
+    "pandas>=3.0.6",
+    "polars>=2.0.0",
+    "requests>=2.34.2",
+]
