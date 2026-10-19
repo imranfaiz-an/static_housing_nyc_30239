@@ -74,15 +74,8 @@ def _(pl):
 
 
 @app.cell
-def _(housing_df):
-    housing_df.group_by("Job_Type").len() # 29,166 new constructions have been added since 2016. 
-    return
-
-
-@app.cell
 def _(housing_df, pl):
     df_year = housing_df.filter(pl.col("Job_Type")=="New Building").group_by("PermitYear").len()
-    df_year
     return (df_year,)
 
 
@@ -158,7 +151,6 @@ def _(alt, net_housing, nyc_orange, pl):
     )
 
     _bar_alterations
-
     return
 
 
@@ -195,13 +187,6 @@ def _(alt, net_housing, nyc_blue, nyc_orange, pl):
 
 
     _bar_alt_pct + _bar_text
-
-    return (net_housing_percent,)
-
-
-@app.cell
-def _(net_housing_percent):
-    net_housing_percent
     return
 
 
@@ -289,7 +274,6 @@ def _(pl, pop_df_clean):
         on=["_1950", "_1960", "_1970", "_1980", "_1990", "_2000", "_2010", "_2020", "_2030", "_2040"],
         value_name="Population"    
     ).with_columns(pl.col("Year").str.replace("_", ""))
-    pop_df_long
     return (pop_df_long,)
 
 
@@ -326,7 +310,7 @@ def _(alt, nyc_orange, pl, pop_df_long):
             fontWeight="bold",
             color="#000000"
         ).encode(alt.X("x")
-    
+
     )
 
 
@@ -358,18 +342,9 @@ def _(fips_df, pl):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The census variable to get the total number of housing units is: B25001_001
-
-    Other useful ones are: B25003_002 Total Owner Occupied, and B25003_003 Total Renter Occupied
-
     ## Ideas:
     - A cool thing to visualize would be how the population across the city and in boroughs has increased since 1940 and in parallel show the increase in housing units. [Resource](https://www.nyc.gov/assets/planning/download/pdf/data-maps/nyc-population/historical-population/nyc_total_hu_1940-2010.pdf)
-
-    ### Pending Stuff
-    - Start loading in ACS/Census data
-    - Clean borough pop data above - make it long instead of wide
-    - The housing database has start year and complete year - for my case the start year would be better to look at.
-        - Other fields to explore are: borogh, census tract/block info
+    - Show where new housing units are being built in NYC - use lat,long columns
     """)
     return
 
@@ -381,7 +356,6 @@ def _(pl):
         {"year":_years,
         "total_housing_units": [2218372, 2433465, 2758116, 2924384, 2946410, 2992169, 3200912, 3371062, 3519595]}
     )
-    total_housing_units_df
     return (total_housing_units_df,)
 
 
@@ -393,8 +367,6 @@ def _(pl, pop_df_long, total_housing_units_df):
         on="year",
         how="full"
     )
-
-    pop_housing_df
     return (pop_housing_df,)
 
 
@@ -497,12 +469,6 @@ def _(alt, nyc_blue, nyc_orange, pop_housing_proj_dupl_df):
 
 
 @app.cell
-def _(pop_housing_ratio):
-    pop_housing_ratio
-    return
-
-
-@app.cell
 def _(alt, pop_housing_ratio):
     # Pop housing ratio
 
@@ -553,13 +519,7 @@ def _(census, fips_to_boroughs, ny_fips, pl):
     housing_census_data = pl.DataFrame(housing_census_data).rename(census_columns).with_columns(pl.col("county").replace_strict(fips_to_boroughs))
 
     housing_pd_df = housing_census_data.to_pandas()
-    return housing_census_data, housing_pd_df
-
-
-@app.cell
-def _(housing_census_data, pl):
-    housing_census_data.select(pl.sum("total_housing_units"))
-    return
+    return (housing_pd_df,)
 
 
 @app.cell
@@ -567,12 +527,6 @@ def _(gpd, housing_pd_df):
     borough_nyc = gpd.read_file("https://data.cityofnewyork.us/resource/gthc-hcne.geojson")
     housing_by_borough = borough_nyc.merge(housing_pd_df, left_on="boroname", right_on="county")
     return (housing_by_borough,)
-
-
-@app.cell
-def _(housing_by_borough):
-    housing_by_borough
-    return
 
 
 @app.cell
@@ -592,12 +546,6 @@ def _(alt, housing_by_borough):
 def _(housing_by_borough, pd):
     housing_by_borough["area_sq_mile"] = pd.to_numeric(housing_by_borough["shape_area"]) / 27878400
     housing_by_borough["housing_units_sq_mile"] = round(housing_by_borough["total_housing_units"] / housing_by_borough["area_sq_mile"])
-    return
-
-
-@app.cell
-def _(housing_by_borough):
-    housing_by_borough
     return
 
 
