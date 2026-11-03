@@ -10,6 +10,8 @@ New York City is the most populated city in the US and one of the most populous 
 
 ## Data Sources:
 
-[1] DCP Housing Database - [URL](https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level)
-[2] DCP Population by Borough - [URL](https://data.cityofnewyork.us/City-Government/New-York-City-Population-by-Borough-1950-2040/xywu-7bv9/about_data)
-[3] ACS US Census Data for New York's Population and Housing - [URL](https://data.census.gov/table/ACSDT1Y2024.B25031?q=B25031:+Median+Gross+Rent+by+Bedrooms)
+- DCP Housing Database - [URL](https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level)
+
+- DCP Population by Borough - [URL](https://data.cityofnewyork.us/City-Government/New-York-City-Population-by-Borough-1950-2040/xywu-7bv9/about_data)
+
+- ACS US Census Data for New York's Population and Housing - [URL](https://data.census.gov/table/ACSDT1Y2024.B25031?q=B25031:+Median+Gross+Rent+by+Bedrooms)
