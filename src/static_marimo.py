@@ -34,28 +34,27 @@ def _(pl):
         2: "Bronx",
         3: "Brooklyn",
         4: "Queens",
-        5: "Staten Island"
+        5: "Staten Island",
     }
 
-    color_themes = {
-        "empire":"#E9D0B2"
-    }
+    color_themes = {"empire": "#E9D0B2"}
 
-    housing_df = pl.read_csv(
-        "data/nychdb_26q2.1_csv/HousingDB_post2010.csv", 
-        ignore_errors=True
-        ).filter(
-            ~((pl.col("Job_Type")=="Alteration") & (pl.col("ClassANet")==0)) 
-        ).with_columns(
-            pl.col("Boro").replace_strict(borough_key)
-        )
+    housing_df = (
+        pl.read_csv("data/nychdb_26q2.1_csv/HousingDB_post2010.csv", ignore_errors=True)
+        .filter(~((pl.col("Job_Type") == "Alteration") & (pl.col("ClassANet") == 0)))
+        .with_columns(pl.col("Boro").replace_strict(borough_key))
+    )
     return color_themes, housing_df, nyc_blue, nyc_orange
 
 
 @app.cell
 def _(housing_df, pl):
-    #housing_df_new= housing_df.with_columns(pl.col("CompltYear").cast(pl.String).replace(None, "Under Construction"))
-    completed_housing_df = housing_df.filter(pl.col("Job_Type")=="New Building").group_by("CompltYear").len()
+    # housing_df_new= housing_df.with_columns(pl.col("CompltYear").cast(pl.String).replace(None, "Under Construction"))
+    completed_housing_df = (
+        housing_df.filter(pl.col("Job_Type") == "New Building")
+        .group_by("CompltYear")
+        .len()
+    )
     return
 
 
@@ -63,143 +62,144 @@ def _(housing_df, pl):
 def _(alt, housing_df, pl):
     # Total Class A units added over time
 
-    net_housing = housing_df.filter(
-        (pl.col("PermitYear").is_not_null()) &
-        (pl.col("Job_Type") != "Demolition") &
-        (pl.col("PermitYear") > 2005)
-    ).group_by("Job_Type", "PermitYear").agg(pl.col("ClassANet").sum())
+    net_housing = (
+        housing_df.filter(
+            (pl.col("PermitYear").is_not_null())
+            & (pl.col("Job_Type") != "Demolition")
+            & (pl.col("PermitYear") > 2005)
+        )
+        .group_by("Job_Type", "PermitYear")
+        .agg(pl.col("ClassANet").sum())
+    )
 
     _base_chart = alt.Chart(net_housing)
-    _line_chart = _base_chart.mark_line().encode(
-        alt.X("PermitYear:O").title("Year").axis(
-            labelAngle=0,
-            labelExpr="datum.value % 2 == 0 ? datum.label : ''"
-        ),
-        alt.Y("ClassANet:Q").title("Housing Units"),
-        alt.Color("Job_Type", legend=alt.Legend(orient="none", legendX=510, legendY=2)).title("")
-    ).properties(
-        width=600,
-        height=350
+    _line_chart = (
+        _base_chart.mark_line()
+        .encode(
+            alt.X("PermitYear:O")
+            .title("Year")
+            .axis(labelAngle=0, labelExpr="datum.value % 2 == 0 ? datum.label : ''"),
+            alt.Y("ClassANet:Q").title("Housing Units"),
+            alt.Color(
+                "Job_Type", legend=alt.Legend(orient="none", legendX=510, legendY=2)
+            ).title(""),
+        )
+        .properties(width=600, height=350)
     )
 
-    _line_chart.configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    ).configure_legend(
-        labelFontSize=12,
-        titleFontSize=14
-    ).configure_title(
-        fontSize=18
-    )
+    _line_chart.configure_axis(labelFontSize=12, titleFontSize=14).configure_legend(
+        labelFontSize=12, titleFontSize=14
+    ).configure_title(fontSize=18)
     return (net_housing,)
 
 
 @app.cell
 def _(alt, net_housing, nyc_blue, nyc_orange, pl):
     net_housing_percent = net_housing.with_columns(
-        (pl.col("ClassANet") / pl.col("ClassANet").sum().over("PermitYear")).alias("percent_cat")
+        (pl.col("ClassANet") / pl.col("ClassANet").sum().over("PermitYear")).alias(
+            "percent_cat"
+        )
     )
 
-    _base = alt.Chart(net_housing_percent.filter((pl.col("Job_Type")=="Alteration") & (pl.col("PermitYear") > 2010)))
-
-    _bar_alt_pct = _base.mark_bar(color=nyc_blue).encode(
-        alt.X("PermitYear:O").title("Year").axis(labelAngle=0),
-        alt.Y("percent_cat:Q").title("").axis(format='%')
-    ).properties(
-        width=600,
-        height=350,
+    _base = alt.Chart(
+        net_housing_percent.filter(
+            (pl.col("Job_Type") == "Alteration") & (pl.col("PermitYear") > 2010)
+        )
     )
 
-    _bar_text = _base.mark_text(
-        text="47% \nthrough\n August 2026",
-        align="right",
-        dy=5,
-        dx=-20,
-        lineBreak="\n",
-        fontSize=14,
-        fontWeight="bold",
-        color=nyc_orange
-    ).transform_filter(
-        alt.datum.PermitYear == 2026
-    ).encode(
-        alt.X("PermitYear:O"),
-        alt.Y("percent_cat:Q")
+    _bar_alt_pct = (
+        _base.mark_bar(color=nyc_blue)
+        .encode(
+            alt.X("PermitYear:O").title("Year").axis(labelAngle=0),
+            alt.Y("percent_cat:Q").title("").axis(format="%"),
+        )
+        .properties(
+            width=600,
+            height=350,
+        )
+    )
+
+    _bar_text = (
+        _base.mark_text(
+            text="47% \nthrough\n August 2026",
+            align="right",
+            dy=5,
+            dx=-20,
+            lineBreak="\n",
+            fontSize=14,
+            fontWeight="bold",
+            color=nyc_orange,
+        )
+        .transform_filter(alt.datum.PermitYear == 2026)
+        .encode(alt.X("PermitYear:O"), alt.Y("percent_cat:Q"))
     )
 
     _final = _bar_alt_pct + _bar_text
-    _final.configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    ).configure_legend(
-        labelFontSize=12,
-        titleFontSize=14
-    ).configure_title(
-        fontSize=18
-    )
+    _final.configure_axis(labelFontSize=12, titleFontSize=14).configure_legend(
+        labelFontSize=12, titleFontSize=14
+    ).configure_title(fontSize=18)
     return
 
 
 @app.cell
 def _(alt, color_themes, net_housing, nyc_orange, pl):
-    cum_units_df = net_housing.group_by(
-        "PermitYear"
-        ).agg(pl.col("ClassANet").sum().alias("net_units")).sort("PermitYear").with_columns(
-        pl.col("net_units").cum_sum().alias("cum_units")
-        )
+    cum_units_df = (
+        net_housing.group_by("PermitYear")
+        .agg(pl.col("ClassANet").sum().alias("net_units"))
+        .sort("PermitYear")
+        .with_columns(pl.col("net_units").cum_sum().alias("cum_units"))
+    )
 
     _base_chart = alt.Chart(cum_units_df)
-    _line_chart = _base_chart.mark_line(color=nyc_orange).encode(
-        alt.X("PermitYear:O").title("Year").axis(
-            labelAngle=0,
-            labelExpr="datum.value % 2 == 0 ? datum.label : ''"
-        ),
-        alt.Y("cum_units:Q").title("New Housing Units")
-    ).properties(
-        width=700,
-        height=350
+    _line_chart = (
+        _base_chart.mark_line(color=nyc_orange)
+        .encode(
+            alt.X("PermitYear:O")
+            .title("Year")
+            .axis(labelAngle=0, labelExpr="datum.value % 2 == 0 ? datum.label : ''"),
+            alt.Y("cum_units:Q").title("New Housing Units"),
+        )
+        .properties(width=700, height=350)
     )
 
     _bar_chart = _base_chart.mark_bar(
-        color=color_themes["empire"],
-        stroke="white"
-        ).encode(
-        alt.X("PermitYear:O"),
-        alt.Y("net_units:Q")
+        color=color_themes["empire"], stroke="white"
+    ).encode(alt.X("PermitYear:O"), alt.Y("net_units:Q"))
+
+    _vline = (
+        alt.Chart(pl.DataFrame({"PermitYear": [2008]}))
+        .mark_rule(color="red", strokeDash=[4, 4])
+        .encode(
+            alt.X("PermitYear:O"),
+        )
     )
 
-    _vline = alt.Chart(pl.DataFrame({"PermitYear": [2008]})).mark_rule(color="red", strokeDash=[4, 4]).encode(
-        alt.X("PermitYear:O"),
+    _vtext = (
+        alt.Chart(pl.DataFrame({"PermitYear": [2008]}))
+        .mark_text(
+            text="2008 Financial Crisis", align="left", dx=5, dy=-33, fontSize=12
+        )
+        .encode(alt.X("PermitYear:O"))
     )
 
-    _vtext = alt.Chart(pl.DataFrame({"PermitYear": [2008]})).mark_text(
-        text="2008 Financial Crisis",
-        align="left",
-        dx=5,
-        dy=-33,
-        fontSize=12
-    ).encode(
-        alt.X("PermitYear:O")
+    _vline2 = (
+        alt.Chart(pl.DataFrame({"PermitYear": [2022]}))
+        .mark_rule(color="blue", strokeDash=[4, 4])
+        .encode(
+            alt.X("PermitYear:O"),
+        )
     )
 
-    _vline2 = alt.Chart(pl.DataFrame({"PermitYear": [2022]})).mark_rule(color="blue", strokeDash=[4, 4]).encode(
-        alt.X("PermitYear:O"),
+    _vtext2 = (
+        alt.Chart(pl.DataFrame({"PermitYear": [2022]}))
+        .mark_text(
+            text="2022 Tax Break Deadline", align="left", dx=5, dy=-33, fontSize=12
+        )
+        .encode(alt.X("PermitYear:O"))
     )
 
-    _vtext2 = alt.Chart(pl.DataFrame({"PermitYear": [2022]})).mark_text(
-        text="2022 Tax Break Deadline",
-        align="left",
-        dx=5,
-        dy=-33,
-        fontSize=12
-    ).encode(
-        alt.X("PermitYear:O")
-    )
-
-    _final = _line_chart  + _bar_chart + _vline + _vtext + _vline2 + _vtext2
-    _final.configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    )
+    _final = _line_chart + _bar_chart + _vline + _vtext + _vline2 + _vtext2
+    _final.configure_axis(labelFontSize=12, titleFontSize=14)
     return
 
 
@@ -213,8 +213,8 @@ def _(mo):
 
 @app.cell
 def _(io, pl, requests):
-    URL="https://data.cityofnewyork.us/api/v3/views/xywu-7bv9/query.json"
-    NYC_FIPS="https://data.ny.gov/api/v3/views/79vr-2kdi/query.json"
+    URL = "https://data.cityofnewyork.us/api/v3/views/xywu-7bv9/query.json"
+    NYC_FIPS = "https://data.ny.gov/api/v3/views/79vr-2kdi/query.json"
 
     resp = requests.get(URL)
     resp.raise_for_status()
@@ -229,7 +229,7 @@ def _(io, pl, requests):
 
 @app.cell
 def _(pl, pop_df):
-    #pop_df_clean = 
+    # pop_df_clean =
     pop_df_clean = pop_df.with_columns(pl.col("borough").str.strip_chars())
     return (pop_df_clean,)
 
@@ -239,28 +239,40 @@ def _(pl, pop_df_clean):
     pop_df_long = pop_df_clean.unpivot(
         index="borough",
         variable_name="Year",
-        on=["_1950", "_1960", "_1970", "_1980", "_1990", "_2000", "_2010", "_2020", "_2030", "_2040"],
-        value_name="Population"    
+        on=[
+            "_1950",
+            "_1960",
+            "_1970",
+            "_1980",
+            "_1990",
+            "_2000",
+            "_2010",
+            "_2020",
+            "_2030",
+            "_2040",
+        ],
+        value_name="Population",
     ).with_columns(pl.col("Year").str.replace("_", ""))
     return (pop_df_long,)
 
 
 @app.cell
 def _(fips_df, pl):
-    nyc_boroughs=["Brooklyn", "Bronx", "Manhattan", "Queens", "Staten Island"]
+    nyc_boroughs = ["Brooklyn", "Bronx", "Manhattan", "Queens", "Staten Island"]
     fips_to_boroughs = {
-        '005': 'Bronx', 
-        '047': 'Brooklyn', 
-        '061': 'Manhattan', 
-        '081': 'Queens', 
-        '085': 'Staten Island'
+        "005": "Bronx",
+        "047": "Brooklyn",
+        "061": "Manhattan",
+        "081": "Queens",
+        "085": "Staten Island",
     }
 
     county_fips_code = (
         fips_df.filter(pl.col("city_name").is_in(nyc_boroughs))
-            .get_column("county_fips").str.slice(-3)
-            .to_list()
-      )
+        .get_column("county_fips")
+        .str.slice(-3)
+        .to_list()
+    )
 
     str(county_fips_code)[2:-2]
     return (fips_to_boroughs,)
@@ -270,27 +282,45 @@ def _(fips_df, pl):
 def _(pl):
     _years = list(range(1940, 2030, 10))
     total_housing_units_df = pl.DataFrame(
-        {"year":_years,
-        "total_housing_units": [2218372, 2433465, 2758116, 2924384, 2946410, 2992169, 3200912, 3371062, 3519595]}
+        {
+            "year": _years,
+            "total_housing_units": [
+                2218372,
+                2433465,
+                2758116,
+                2924384,
+                2946410,
+                2992169,
+                3200912,
+                3371062,
+                3519595,
+            ],
+        }
     )
     return (total_housing_units_df,)
 
 
 @app.cell
 def _(pl, pop_df_long, total_housing_units_df):
-    pop_df_long_total = pop_df_long.filter(pl.col("borough")=="NYC Total").with_columns(pl.col("Year").cast(pl.Int32).alias("year"))
+    pop_df_long_total = pop_df_long.filter(
+        pl.col("borough") == "NYC Total"
+    ).with_columns(pl.col("Year").cast(pl.Int32).alias("year"))
     pop_housing_df = pop_df_long_total.join(
-        other=total_housing_units_df.filter(pl.col("year")!=1940),
+        other=total_housing_units_df.filter(pl.col("year") != 1940),
         on="year",
-        how="full"
+        how="full",
     )
     return (pop_housing_df,)
 
 
 @app.cell
 def _(pl, pop_housing_df):
-    slope = pop_housing_df.select(pl.cov("year_right", "total_housing_units") / pl.col("year_right").var()).item()
-    intercept = pop_housing_df.select(pl.col("total_housing_units").mean() - slope * pl.col("year_right").mean()).item()
+    slope = pop_housing_df.select(
+        pl.cov("year_right", "total_housing_units") / pl.col("year_right").var()
+    ).item()
+    intercept = pop_housing_df.select(
+        pl.col("total_housing_units").mean() - slope * pl.col("year_right").mean()
+    ).item()
 
     slope, intercept
 
@@ -298,25 +328,35 @@ def _(pl, pop_housing_df):
         projected=pl.col("total_housing_units").is_null(),
         total_housing_units=pl.coalesce(
             "total_housing_units",
-            (pl.col("year") * slope + intercept).round().cast(pl.Int64)
-        )
+            (pl.col("year") * slope + intercept).round().cast(pl.Int64),
+        ),
     ).drop("year_right")
 
-    _continuous = pl.DataFrame({
-        "year": [2020],
-        "total_housing_units": [3519595],
-        "Population": ["8550971"],
-        "projected": [True]
-    })
+    _continuous = pl.DataFrame(
+        {
+            "year": [2020],
+            "total_housing_units": [3519595],
+            "Population": ["8550971"],
+            "projected": [True],
+        }
+    )
 
-    pop_housing_proj_dupl_df = pl.concat([pop_housing_projected_df, _continuous.with_columns(pl.col("year").cast(pl.Int32))], how="diagonal")
+    pop_housing_proj_dupl_df = pl.concat(
+        [
+            pop_housing_projected_df,
+            _continuous.with_columns(pl.col("year").cast(pl.Int32)),
+        ],
+        how="diagonal",
+    )
     return pop_housing_proj_dupl_df, pop_housing_projected_df
 
 
 @app.cell
 def _(pl, pop_housing_projected_df):
     pop_housing_ratio = pop_housing_projected_df.with_columns(
-        pop_housing_ratio=(pl.col("Population").cast(pl.Int32) / pl.col("total_housing_units")).round(2)
+        pop_housing_ratio=(
+            pl.col("Population").cast(pl.Int32) / pl.col("total_housing_units")
+        ).round(2)
     )
     return (pop_housing_ratio,)
 
@@ -325,67 +365,62 @@ def _(pl, pop_housing_projected_df):
 def _(alt, nyc_orange, pop_housing_proj_dupl_df):
     # housing_population_df
     _base_chart = alt.Chart(pop_housing_proj_dupl_df)
-    _pop_line_chart = _base_chart.mark_line(color="#9f2f67").encode(
-        alt.X("year:O").title("Year").axis(labelAngle=0),
-        alt.Y("Population:Q").title(""),
-    ).properties(
-        height=400,
-        width=600,
-        title=""
+    _pop_line_chart = (
+        _base_chart.mark_line(color="#9f2f67")
+        .encode(
+            alt.X("year:O").title("Year").axis(labelAngle=0),
+            alt.Y("Population:Q").title(""),
+        )
+        .properties(height=400, width=600, title="")
     )
 
     _housing_line_chart = _base_chart.mark_line(color=nyc_orange).encode(
         alt.X("year:O"),
         alt.Y("total_housing_units:Q").title(""),
-        alt.StrokeDash("projected:N").title("Linear Projection").legend(None)
+        alt.StrokeDash("projected:N").title("Linear Projection").legend(None),
     )
 
-    _pop_label = _base_chart.mark_text(
-        text="Population",
-        dy=30,
-        dx=-450,
-        color="black",
-        fontSize=12,
-        fontWeight="bold"
-    ).transform_filter(
-        alt.datum.year == 2040
-    ).encode(
-        alt.X("year:O"),
-        alt.Y("Population:Q")
+    _pop_label = (
+        _base_chart.mark_text(
+            text="Population",
+            dy=30,
+            dx=-450,
+            color="black",
+            fontSize=12,
+            fontWeight="bold",
+        )
+        .transform_filter(alt.datum.year == 2040)
+        .encode(alt.X("year:O"), alt.Y("Population:Q"))
     )
 
-    _housing_label = _base_chart.mark_text(
-        text="Housing",
-        dy=200,
-        color="black",
-        fontSize=12,
-        fontWeight="bold"
-    ).transform_filter(
-        alt.datum.year == 1990
-    ).encode(
-        alt.X("year:O"),
-        alt.Y("Population:Q")
+    _housing_label = (
+        _base_chart.mark_text(
+            text="Housing", dy=200, color="black", fontSize=12, fontWeight="bold"
+        )
+        .transform_filter(alt.datum.year == 1990)
+        .encode(alt.X("year:O"), alt.Y("Population:Q"))
     )
 
-    _housing_projected_label = _base_chart.mark_text(
-        text="Housing Projected",
-        dy=195,
-        dx=-25,
-        color="#000000",
-        fontSize=12,
-        fontWeight="bold"
-    ).transform_filter(
-        alt.datum.year == 2040
-    ).encode(
-        alt.X("year:O"),
-        alt.Y("Population:Q")
+    _housing_projected_label = (
+        _base_chart.mark_text(
+            text="Housing Projected",
+            dy=195,
+            dx=-25,
+            color="#000000",
+            fontSize=12,
+            fontWeight="bold",
+        )
+        .transform_filter(alt.datum.year == 2040)
+        .encode(alt.X("year:O"), alt.Y("Population:Q"))
     )
 
-
-    (_pop_line_chart + _housing_line_chart + _pop_label + _housing_label + _housing_projected_label).configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    )
+    (
+        _pop_line_chart
+        + _housing_line_chart
+        + _pop_label
+        + _housing_label
+        + _housing_projected_label
+    ).configure_axis(labelFontSize=12, titleFontSize=14)
     return
 
 
@@ -393,24 +428,17 @@ def _(alt, nyc_orange, pop_housing_proj_dupl_df):
 def _(alt, pl, pop_housing_ratio):
     # Pop housing ratio
 
-    _base_chart = alt.Chart(pop_housing_ratio.filter(
-        pl.col("year") < 2030
-    ))
-    _step_chart = _base_chart.mark_line(
-        color="#9f2f67",
-        line=True
-    ).encode(
-        alt.X("year:O").title("Year").axis(labelAngle=0),
-        alt.Y("pop_housing_ratio").title("People / Housing Unit"),
-    ).properties(
-        width=600,
-        height=300
+    _base_chart = alt.Chart(pop_housing_ratio.filter(pl.col("year") < 2030))
+    _step_chart = (
+        _base_chart.mark_line(color="#9f2f67", line=True)
+        .encode(
+            alt.X("year:O").title("Year").axis(labelAngle=0),
+            alt.Y("pop_housing_ratio").title("People / Housing Unit"),
+        )
+        .properties(width=600, height=300)
     )
 
-    _step_chart.configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    )
+    _step_chart.configure_axis(labelFontSize=12, titleFontSize=14)
     return
 
 
@@ -430,18 +458,19 @@ def _(census, fips_to_boroughs, ny_fips, pl):
     census_columns = {
         "B25001_001E": "total_housing_units",
         "B25003_002E": "total_owner_occupied",
-        "B25003_003E": "total_renter_occupied"
+        "B25003_003E": "total_renter_occupied",
     }
 
     housing_census_data = census.acs5.get(
         ["NAME"] + list(census_columns.keys()),
-        geo={
-            "for": "county:005,047,081,085,061",
-            "in": f"state:{ny_fips}"
-        }
+        geo={"for": "county:005,047,081,085,061", "in": f"state:{ny_fips}"},
     )
 
-    housing_census_data = pl.DataFrame(housing_census_data).rename(census_columns).with_columns(pl.col("county").replace_strict(fips_to_boroughs))
+    housing_census_data = (
+        pl.DataFrame(housing_census_data)
+        .rename(census_columns)
+        .with_columns(pl.col("county").replace_strict(fips_to_boroughs))
+    )
 
     housing_pd_df = housing_census_data.to_pandas()
     return (housing_pd_df,)
@@ -452,7 +481,9 @@ def _(gpd, housing_pd_df, io, requests):
     r = requests.get("https://data.cityofnewyork.us/resource/gthc-hcne.geojson")
     r.raise_for_status()
     borough_nyc = gpd.read_file(io.BytesIO(r.content))
-    housing_by_borough = borough_nyc.merge(housing_pd_df, left_on="boroname", right_on="county")
+    housing_by_borough = borough_nyc.merge(
+        housing_pd_df, left_on="boroname", right_on="county"
+    )
     return (housing_by_borough,)
 
 
@@ -461,60 +492,71 @@ def _(alt, housing_by_borough):
     pts = housing_by_borough.geometry.representative_point()
     labels_df = housing_by_borough[["boroname"]].assign(lon=pts.x, lat=pts.y)
 
-    _chart = alt.Chart(housing_by_borough).mark_geoshape().encode(
-        alt.Color("total_housing_units:Q", scale=alt.Scale(scheme="viridis", reverse=True)).title("Count of Housing Units"),
-        alt.Tooltip(['boroname', 'total_housing_units'])
-    ).interactive().properties(
-        width=600,
-        height=500,
+    _chart = (
+        alt.Chart(housing_by_borough)
+        .mark_geoshape()
+        .encode(
+            alt.Color(
+                "total_housing_units:Q", scale=alt.Scale(scheme="viridis", reverse=True)
+            ).title("Count of Housing Units"),
+            alt.Tooltip(["boroname", "total_housing_units"]),
+        )
+        .interactive()
+        .properties(
+            width=600,
+            height=500,
+        )
     )
-    _labels = alt.Chart(labels_df).mark_text(
-        fontSize=12, fontWeight="bold", color="red"
-    ).encode(
-        longitude="lon:Q",
-        latitude="lat:Q",
-        text="boroname:N"
+    _labels = (
+        alt.Chart(labels_df)
+        .mark_text(fontSize=12, fontWeight="bold", color="red")
+        .encode(longitude="lon:Q", latitude="lat:Q", text="boroname:N")
     )
 
-    (_chart +_labels)
+    (_chart + _labels)
     return (labels_df,)
 
 
 @app.cell
 def _(housing_by_borough, pd):
-    housing_by_borough["area_sq_mile"] = pd.to_numeric(housing_by_borough["shape_area"]) / 27878400
-    housing_by_borough["housing_units_sq_mile"] = round(housing_by_borough["total_housing_units"] / housing_by_borough["area_sq_mile"])
+    housing_by_borough["area_sq_mile"] = (
+        pd.to_numeric(housing_by_borough["shape_area"]) / 27878400
+    )
+    housing_by_borough["housing_units_sq_mile"] = round(
+        housing_by_borough["total_housing_units"] / housing_by_borough["area_sq_mile"]
+    )
     return
 
 
 @app.cell
 def _(alt, housing_by_borough, labels_df):
 
-    _base = alt.Chart(housing_by_borough).mark_geoshape().encode(
-        alt.Color("housing_units_sq_mile:Q",  
-                  scale=alt.Scale(scheme="viridis", reverse=True)
-                 ).title("Housing Units Per Sq. Mile"),
-        alt.Tooltip(['boroname', 'total_housing_units', 'housing_units_sq_mile'])
-    ).interactive().properties(
-        width=600,
-        height=500,
+    _base = (
+        alt.Chart(housing_by_borough)
+        .mark_geoshape()
+        .encode(
+            alt.Color(
+                "housing_units_sq_mile:Q",
+                scale=alt.Scale(scheme="viridis", reverse=True),
+            ).title("Housing Units Per Sq. Mile"),
+            alt.Tooltip(["boroname", "total_housing_units", "housing_units_sq_mile"]),
+        )
+        .interactive()
+        .properties(
+            width=600,
+            height=500,
+        )
     )
 
-    _labels = alt.Chart(labels_df).mark_text(
-        fontSize=12, fontWeight="bold", color="red"
-    ).encode(
-        longitude="lon:Q",
-        latitude="lat:Q",
-        text="boroname:N"
+    _labels = (
+        alt.Chart(labels_df)
+        .mark_text(fontSize=12, fontWeight="bold", color="red")
+        .encode(longitude="lon:Q", latitude="lat:Q", text="boroname:N")
     )
 
     (_base + _labels).configure_axis(
-        labelFontSize=12,
-        titleFontSize=14
-    ).configure_legend(
-        labelFontSize=12,
-        titleFontSize=14
-    )
+        labelFontSize=12, titleFontSize=14
+    ).configure_legend(labelFontSize=12, titleFontSize=14)
 
     return
 
