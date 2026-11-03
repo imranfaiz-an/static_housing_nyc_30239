@@ -1,0 +1,79 @@
+h1 {
+  background-color: lightblue;
+}
+
+body {
+  background-color: #ffffff;
+}
+
+h2 {
+  font-size: 2em;
+  font-family: Times;
+  text-align: center;
+  font-style: italic;
+}
+
+p {
+  font-size: 1.3em;
+  font-family: Times;
+}
+
+.root {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* grid-template-columns: 1fr minmax(0, 2fr) 1fr; */
+  gap: 10px;
+  grid-auto-rows: minmax(100px, auto);
+}
+
+header {
+  grid-column: 2/3;
+  grid-row: 1;
+}
+
+header p {
+  font-size: 1.4em;
+  font-family: Times;
+  text-align: center;
+}
+
+.context {
+  grid-column: 2/3;
+  grid-row: 2/3;
+}
+
+.mamdani {
+  grid-column: 2/3;
+  grid-row: 3/4;
+}
+.chart {
+  margin: 2.5em 0;
+  overflow-x: auto;
+}
+
+.chart img {
+  width: 100%;
+  height: auto;
+  width: 600px;
+  display: block;
+}
+
+.chart-title {
+  font-family: Times;
+  font-size: 1.2em;
+  margin: 0 0 0.2em 0;
+}
+
+.chart .chart-note {
+  font-size: 0.9em;
+  font-style: italic;
+  color: #555;
+  margin: 0 0 0.5em 0;
+}
+
+.chart figcaption {
+  font-family: Times;
+  font-size: 0.95em;
+  color: #666;
+  margin-top: 0.4em;
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Housing in NYC </title>
+    <meta name="author" content="Faizan" />
+    <meta name="description" content="Visualizing the historic housing supply and demand in New York City" />
+    <link rel="stylesheet" href="css/styles.css"
+  </head>
+  <body>
+    <article class="root">
+      <header>
+        <h2>
+          Housing in New York City:
+          Visualizing new and historic housing availability in juxtaposition to population growth
+      </h2>
+      <hr>
+        <p>
+          Data Visualization for Policy Analysis <br />Muhammad Faizan Imran
+          <br /><time datetime="2026-11-02">2 November 2026</time>
+        </p>
+      </header>
+      <div class="context">
+        <p>
+          New York City is the most populated city in the US and one of the most
+          populous in the world. That has led to the city running consistently into
+          housing problems - with the city boasting some of the highest rents anywhere
+          in the world. With a stable population growth over the past decades not
+          being matched with enough new housing built - the gap between population
+          and housing is pushing people out and away from the city. 
+        </p>
+        <p>
+          We visualize below the number of new housing units added in New York over
+          that last two decades. There was a decline in new housing added
+          after the 2008 financial crises. We also note a couple of years that add over 50,000
+          new housing units; both of these instances were due a tax break deadline
+          approaching.
+        </p>
+        <figure class="chart">
+          <h3 class="chart-title">Cumulative new housing units added since 2006</h3>
+          <p class="chart-note">The line chart is giving a cumulative picture
+          while the bars represent how much was added in each year</p>
+          <img src="../images/cumsum.svg" />
+          <figcaption>Source: New York City's Department of City Planning's Housing Database</figcaption>
+        </figure>
+        <p>
+        Comparing this with the population growth that the city has seen from 2000
+        to 2020, the city's population rose by over 550,000 people. We can visualize
+        how the gap between housing units and total population in the city have
+        looked like historically and what we can project given the current rate
+        at which housing is being added.
+        <figure class="chart">
+          <h3 class="chart-title">Total population of NYC and total housing units available
+          (1940-2040)</h3>
+          <p class="chart-note">We use a linear regression to projection the housing for 2030 & 2040</p>
+          <img src="../images/pop_housing_growth.svg" />
+          <figcaption>
+            Source: Census New York City Population data & DCP's 2040 Population Projection Tables
+          </figcaption>
+        </figure>
+        <p>
+          Given this we can also see how many people reside in a single housing
+          unit in the city and how that ratio has changed since 1950 and what
+          we find is that there was a gradual decrease in the number of people
+          living in a single housing unit from 1950-1980 but the ratio has since
+          stagnated at around 2.5 people per home.
+        </p>
+        <figure class="chart">
+          <h3 class="chart-title">Ratio of people per housing unit</h3>
+          <p class="chart-note"></p>
+          <img src="../images/people_housing_ratio.svg" />
+          <figcaption>
+            Source: Census New York City Population data & DCP's 2040 Population Projection Tables
+          </figcaption>
+        </figure>
+        <p>
+          We can zoom in further using the Department of City Planning's (DCP)
+          housing database and track how the city has been keeping up with the housing
+          demand. The city has two main levers at its disposal: a) giving tax breaks
+          to real estate developers - something we notice in the first figure and
+          b) using already existing infrastructure and converting it for residential
+          use. As new housing construction takes a long time to be realized and start
+          housing folks - residential conversions are a quick policy fix.
+        </p>
+        <figure class="chart">
+          <h3 class="chart-title">Driver behind new housing units being added year over year</h3>
+          <p class="chart-note"></p>
+          <img src="../images/construction_alteration.svg" />
+          <figcaption>Source: New York City's Department of City Planning's Housing Database</figcaption>
+        </figure>
+      </div>
+      <div class="mamdani">
+        <p>
+        <a href="https://www.nbcnews.com/politics/politics-news/zohran-mamdani-wades-housing-debate-plan-define-time-office-rcna346454">
+        The current NYC adminstration's main policy agenda is affordabitiy</a> and to
+        this end the city is taking on the costs being driven by housing. With the
+        city's Rent Control Guidelines Board <a
+        href="https://gothamist.com/news/nyc-rent-guidelines-board-approves-2-year-rent-freeze-fulfilling-mamdani-campaign-pledge">
+        passing a rent freeze on around 2 million
+        units for the next two years</a> - on the supply side the city is focusing on
+        increasing housing supply and one of the fastest way to do that is through
+        conversions between city owned buildings that already exit and converting them
+        for residential use. This short term lever is something that the city seems
+        to be relying on a lot, just until August of this year, almost 50% of all
+        new housing added in NYC has come through conversions or alterations on
+        already existing buildings.
+        </p>
+        <figure class="chart">
+          <h3 class="chart-title">
+            Conversions/Alerations as Percentage of New Housing Units Added
+          </h3>
+          <p class="chart-note"></p>
+          <img src="../images/alterations_pct.svg" />
+          <figcaption>Source: New York City's Department of City Planning's Housing Database</figcaption>
+        </figure>
+        <p>
+          Lastly, we can look at housing by boroughs and what we find is that
+          Brooklyn has the highest number of total housing units while Manhattan
+          has the most per square mile. What is evident through both the charts
+          below however, is that Staten Island is lacking behind the four other
+          boroughs by a lot given how much area it has. A reason for this could
+          be that there is more demand for housing in the other boroughs but this
+          is something that the city could intervene in and try to incentivize
+          more housing construction in Staten Island as well.
+        </p>
+        <figure class="chart">
+          <h3 class="chart-title">
+            Housing units per square mile by borough
+          </h3>
+          <p class="chart-note"></p>
+          <img src="../images/housing_borough_area.svg" />
+          <figcaption>Source: ACS 2024 - NYC Population by County</figcaption>
+        </figure>
+        <figure class="chart">
+          <h3 class="chart-title">
+            Total housing units by borough
+          </h3>
+          <p class="chart-note"></p>
+          <img src="../images/housing_borough.svg" />
+          <figcaption>Source: ACS 2024 - NYC Population by County</figcaption>
+        </figure>
+      </div>
+    </article>
+  </body>
+
+</html>
