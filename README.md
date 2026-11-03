@@ -2,7 +2,7 @@
 
 Muhammad Faizan Imran
 
-##Description
+## Description
 
 New York City is the most populated city in the US and one of the most populous in the world. That has led to the city running consistently into housing problems - with the city boasting some of the highest rents anywhere in the world. In this project I work with Department of City Planning's Housing Database and US Census housing and population data for New York to better understand through visualizations how the supply of housing in the city has looked like over the years and how different levers are used by the city to encourage more housing development.
 
