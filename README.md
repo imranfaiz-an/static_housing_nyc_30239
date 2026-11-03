@@ -8,6 +8,21 @@ New York City is the most populated city in the US and one of the most populous 
 
 ![project screenshot](images/screenshot.png)
 
+### Steps to replicate
+
+I used marimo notebook to work on the project and the code can be found inside the `src` folder to run the marimo notebook please follow the following steps:
+
+- From the root of the cloned repo run
+
+```python
+uv sync
+uv run marimo run src/static_marimo.py
+# OR
+uv run marimo edit
+```
+
+The final output is in HTML and can be found inside the `static-viz` folder. The code doesn't need to be run to view the HTML file as I am attaching everything after having saved the outputs.
+
 ## Data Sources:
 
 - DCP Housing Database - [URL](https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level)
